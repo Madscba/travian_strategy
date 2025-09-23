@@ -111,7 +111,7 @@ class BuildingEffects(BaseModel):
 class BuildingLevel(BaseModel):
     """Model representing a single building level with all its properties."""
 
-    level: int = Field(ge=1, le=25, description="Building level (1-25)")
+    level: int = Field(ge=1, le=100, description="Building level (1-100)")
     resource_cost: ResourceCosts = Field(description="Resources required to build this level")
     build_time: int = Field(ge=0, description="Build time in seconds")
     population: int = Field(ge=0, description="Population required")

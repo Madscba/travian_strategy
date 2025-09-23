@@ -812,7 +812,7 @@ def main():
                            f"{first_level.resource_cost.iron}i, {first_level.resource_cost.crop}cr")
 
         # Optionally export to CSV
-        export_to_csv(buildings_data, "./data/building_resource_costs.csv")
+        export_to_csv(buildings_data, "src/travian_strategy/data/building_resource_costs.csv")
 
     except Exception:
         logger.exception("Error in main execution")
