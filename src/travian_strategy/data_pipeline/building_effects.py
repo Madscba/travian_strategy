@@ -9,7 +9,7 @@ import logging
 import re
 from typing import Any, Dict, Optional, Union
 
-from src.travian_strategy.data_pipeline.static import EFFECT_ICON_MAPPING, BUILDING_EFFECTS_MAPPING
+from src.travian_strategy.data_pipeline.static import BUILDING_EFFECTS_MAPPING, EFFECT_ICON_MAPPING
 
 logger = logging.getLogger(__name__)
 

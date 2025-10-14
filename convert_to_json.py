@@ -5,15 +5,13 @@ Convert CSV building data with effects to a single consolidated JSON file.
 
 import csv
 import json
-from collections import defaultdict
-from pathlib import Path
 
 
 def convert_csv_to_json(csv_file: str, output_file: str):
     """Convert the enhanced CSV to consolidated JSON format."""
     buildings = {}
 
-    with open(csv_file, 'r', newline='', encoding='utf-8') as csvfile:
+    with open(csv_file, newline='', encoding='utf-8') as csvfile:
         reader = csv.DictReader(csvfile)
 
         for row in reader:
@@ -72,7 +70,7 @@ def convert_csv_to_json(csv_file: str, output_file: str):
     buildings_with_effects = sum(1 for b in buildings.values() if b['effect_type'])
     total_levels = sum(len(b['levels']) for b in buildings.values())
 
-    print(f"Conversion completed:")
+    print("Conversion completed:")
     print(f"- Total buildings: {total_buildings}")
     print(f"- Buildings with effects: {buildings_with_effects}")
     print(f"- Total building levels: {total_levels}")

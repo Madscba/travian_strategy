@@ -129,3 +129,4 @@ class BuildingData(BaseModel):
     category: str = Field(description="Building category (Resources, Infrastructure, Military)")
     max_level: int = Field(ge=1, le=25, description="Maximum building level")
     levels: list[BuildingLevel] = Field(description="List of all building levels")
+

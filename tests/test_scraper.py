@@ -1,24 +1,20 @@
+
 import pytest
 from bs4 import BeautifulSoup
-from unittest.mock import Mock, patch
+from travian_strategy.data_pipeline.models import BuildingData, BuildingEffects, BuildingLevel, ResourceCosts
 from travian_strategy.data_pipeline.scraper import (
-    parse_building_levels,
+    ResourcesScraper,
     _determine_data_type_from_classes,
+    _extract_building_id,
     _parse_level_row,
     _parse_time_value,
-    _extract_building_id,
-    ResourcesScraper
+    parse_building_levels,
 )
-from travian_strategy.data_pipeline.models import (
-    ResourceCosts,
-    BuildingLevel,
-    BuildingData,
-    BuildingEffects
-)
+
 from travian_strategy.data_pipeline.building_effects import (
-    parse_effect_value,
+    categorize_effect_by_icon,
     get_effect_type_from_icon,
-    categorize_effect_by_icon
+    parse_effect_value,
 )
 
 

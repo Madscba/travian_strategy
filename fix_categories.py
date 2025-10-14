@@ -4,7 +4,7 @@
 import json
 
 # Load the data
-with open("data/buildings.json", "r") as f:
+with open("data/buildings.json") as f:
     data = json.load(f)
 
 # Define correct categories

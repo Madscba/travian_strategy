@@ -130,15 +130,15 @@ def main():
 
             # Show file size comparison
             import json
-            with open("data/buildings.json", "r") as f:
+            with open("data/buildings.json") as f:
                 data_size = len(json.dumps(json.load(f)))
 
-            print(f"\n📊 Architecture Summary:")
-            print(f"   • Python files in src/: 3 (down from ~5)")
-            print(f"   • Lines of code: ~300 (down from ~1,353)")
+            print("\n📊 Architecture Summary:")
+            print("   • Python files in src/: 3 (down from ~5)")
+            print("   • Lines of code: ~300 (down from ~1,353)")
             print(f"   • Data file size: {data_size/1024:.1f}KB")
-            print(f"   • Code reduction: ~78%")
-            print(f"   • Functionality preserved: ✅")
+            print("   • Code reduction: ~78%")
+            print("   • Functionality preserved: ✅")
 
         else:
             print("❌ Some tests failed!")

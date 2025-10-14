@@ -9,18 +9,12 @@ building effects mapping in the data pipeline module.
 import csv
 import sys
 from pathlib import Path
-from typing import Dict, Optional, Tuple
+from typing import Optional, Tuple
 
 # Add the src directory to the path to import the data pipeline modules
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
-from travian_strategy.data_pipeline.building_effects import (
-    BUILDING_EFFECTS_MAPPING,
-    EFFECT_ICON_MAPPING,
-    EXAMPLE_BUILDING_EFFECTS,
-    get_building_effects_info
-)
-
+from travian_strategy.data_pipeline.building_effects import EXAMPLE_BUILDING_EFFECTS, get_building_effects_info
 
 # Building name to ID mapping based on the building_effects.py file
 BUILDING_NAME_TO_ID = {
@@ -117,19 +111,11 @@ def calculate_effect_value(building_id: str, level: int) -> Tuple[Optional[str],
     # Handle different effect types with level-based calculations
     if primary_effect == "wood_production":
         return "resource_production", level * 30, "absolute"  # Base production + 30 per level
-    elif primary_effect == "clay_production":
-        return "resource_production", level * 30, "absolute"
-    elif primary_effect == "iron_production":
-        return "resource_production", level * 30, "absolute"
-    elif primary_effect == "crop_production":
+    elif primary_effect == "clay_production" or primary_effect == "iron_production" or primary_effect == "crop_production":
         return "resource_production", level * 30, "absolute"
     elif primary_effect == "icon-woodBonus":
         return "production_bonus", level * 5, "percentage"  # 5% per level
-    elif primary_effect == "icon-clayBonus":
-        return "production_bonus", level * 5, "percentage"
-    elif primary_effect == "icon-ironBonus":
-        return "production_bonus", level * 5, "percentage"
-    elif primary_effect == "icon-cropBonus":
+    elif primary_effect == "icon-clayBonus" or primary_effect == "icon-ironBonus" or primary_effect == "icon-cropBonus":
         return "production_bonus", level * 5, "percentage"
     elif primary_effect == "icon-warehouseCap":
         # Warehouse capacity - exponential growth
@@ -153,9 +139,7 @@ def calculate_effect_value(building_id: str, level: int) -> Tuple[Optional[str],
         return "upgrade_speed_bonus", level * 3, "percentage"
     elif primary_effect == "icon-infantryBonusTime":
         return "training_time_reduction", min(level * 2, 50), "percentage"  # Max 50%
-    elif primary_effect == "icon-cavalryBonusTime":
-        return "training_time_reduction", min(level * 2, 50), "percentage"
-    elif primary_effect == "icon-siegeBonusTime":
+    elif primary_effect == "icon-cavalryBonusTime" or primary_effect == "icon-siegeBonusTime":
         return "training_time_reduction", min(level * 2, 50), "percentage"
     elif primary_effect == "icon-defensiveStrength":
         return "defensive_bonus", level * 5, "percentage"
@@ -191,7 +175,7 @@ def enhance_csv_with_effects(input_file: str, output_file: str):
     rows_processed = 0
     rows_with_effects = 0
 
-    with open(input_file, 'r', newline='', encoding='utf-8') as infile, \
+    with open(input_file, newline='', encoding='utf-8') as infile, \
          open(output_file, 'w', newline='', encoding='utf-8') as outfile:
 
         reader = csv.DictReader(infile)

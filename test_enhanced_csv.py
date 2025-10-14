@@ -19,7 +19,7 @@ def test_enhanced_csv(file_path: str):
     unit_counts = defaultdict(int)
 
     try:
-        with open(file_path, 'r', newline='', encoding='utf-8') as csvfile:
+        with open(file_path, newline='', encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
 
             # Check headers
@@ -79,7 +79,7 @@ def test_enhanced_csv(file_path: str):
 
         # Sample buildings with effects
         print("\nSample Buildings with Effects:")
-        with open(file_path, 'r', newline='', encoding='utf-8') as csvfile:
+        with open(file_path, newline='', encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
             shown_buildings = set()
             for row in reader:
@@ -105,8 +105,8 @@ if __name__ == "__main__":
     if success:
         print("\n" + "=" * 50)
         print("✅ All tests passed! The enhanced CSV is working correctly.")
-        print(f"✅ Building effects have been successfully added to the CSV.")
-        print(f"✅ The CSV now shows effect type, value, unit, and description for each building level.")
+        print("✅ Building effects have been successfully added to the CSV.")
+        print("✅ The CSV now shows effect type, value, unit, and description for each building level.")
     else:
         print("\n" + "=" * 50)
         print("❌ Tests failed!")
