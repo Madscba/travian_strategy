@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Script to enhance the building_resource_costs.csv with building effects data.
+Script to enhance the building_resource_costs_old.csv with building effects data.
 
 This script reads the existing CSV and adds effect-related columns based on the
 building effects mapping in the data pipeline module.
@@ -221,13 +221,13 @@ def enhance_csv_with_effects(input_file: str, output_file: str):
 
 
 if __name__ == "__main__":
-    input_csv = "building_resource_costs.csv"
+    input_csv = "building_resource_costs_old.csv"
     output_csv = "building_resource_costs_with_effects.csv"
 
     enhance_csv_with_effects(input_csv, output_csv)
 
     # Also create the enhanced version in the data pipeline directory
-    data_pipeline_input = "src/travian_strategy/data_pipeline/building_resource_costs.csv"
+    data_pipeline_input = "src/travian_strategy/data_pipeline/building_resource_costs_old.csv"
     data_pipeline_output = "src/travian_strategy/data_pipeline/building_resource_costs_with_effects.csv"
 
     if Path(data_pipeline_input).exists():

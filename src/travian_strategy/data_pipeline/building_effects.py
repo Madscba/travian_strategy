@@ -7,14 +7,14 @@ as well as functions to parse and interpret building effect values from HTML con
 
 import logging
 import re
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional, Union, Tuple
 
 from src.travian_strategy.data_pipeline.static import BUILDING_EFFECTS_MAPPING, EFFECT_ICON_MAPPING
 
 logger = logging.getLogger(__name__)
 
 
-def parse_effect_value(effect_text: str, effect_type: str) -> Union[int, float, None]:
+def parse_effect_value(effect_text: str, effect_type: str) -> Tuple[Union[int, float, None],'str']:
     """
     Parse effect value from text content based on effect type.
 
@@ -40,21 +40,21 @@ def parse_effect_value(effect_text: str, effect_type: str) -> Union[int, float, 
                 value = float(percent_match.group(1))
                 # For training time reduction, values like "90.0%" mean 90% of original time (10% reduction)
                 if effect_type == "training_time_reduction":
-                    return 100 - value  # Convert to reduction percentage
-                return value
+                    return 100 - value, 'percentage'  # Convert to reduction percentage
+                return value, 'percentage'
 
         # Handle absolute numeric values (with potential commas)
         elif effect_type in ["storage_capacity", "population_bonus", "merchant_capacity"]:
             # Remove commas and extract numbers
             numeric_match = re.sub(r'[^\d]', '', clean_text)
             if numeric_match:
-                return int(numeric_match)
+                return int(numeric_match), 'absolute'
 
         # Handle other numeric values
         else:
             numeric_match = re.search(r'([+-]?\d+(?:\.\d+)?)', clean_text)
             if numeric_match:
-                return float(numeric_match.group(1))
+                return float(numeric_match.group(1)), 'absolute'
 
     except (ValueError, AttributeError) as e:
         logger.warning(f"Failed to parse effect value '{effect_text}' for type '{effect_type}': {e}")

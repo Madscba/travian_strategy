@@ -127,6 +127,12 @@ class BuildingData(BaseModel):
     building_name: str = Field(description="Name of the building")
     building_id: str = Field(description="Building identifier (e.g., 'g15')")
     category: str = Field(description="Building category (Resources, Infrastructure, Military)")
-    max_level: int = Field(ge=1, le=25, description="Maximum building level")
+    max_level: int = Field(ge=1, le=100, description="Maximum building level")
     levels: list[BuildingLevel] = Field(description="List of all building levels")
 
+class BuildingDataCollection(BaseModel):
+    """Model representing a collection of building data."""
+
+    buildings: dict[str, BuildingData] = Field(
+        description="Dictionary of building data indexed by building ID"
+    )

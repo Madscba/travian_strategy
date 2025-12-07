@@ -5,7 +5,7 @@ from dataclasses import dataclass
 class DataSources:
     """Class to manage data sources for the game engine."""
     DATAPATH = Directories().DATA_FOLDER
-    BUILDINGS_DATA = DATAPATH / "building_resource_costs.csv"
+    BUILDINGS_DATA = DATAPATH / "building_resource_costs_old.csv"
     TASK_REWARDS = DATAPATH / "task_rewards.xlsx"
 
 

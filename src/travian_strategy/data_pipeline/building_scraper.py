@@ -4,7 +4,7 @@ import os
 import re
 import time
 from typing import Any, Optional
-
+import pickle
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -13,11 +13,12 @@ from selenium.webdriver.firefox.service import Service as FirefoxService
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from .building_effects import (
+from src.travian_strategy.configs.directories import Directories
+from src.travian_strategy.data_pipeline.building_effects import (
     categorize_effect_by_icon,
     parse_effect_value,
 )
-from .data_models import BuildingData, BuildingEffects, BuildingLevel, ResourceCosts
+from src.travian_strategy.data_pipeline.data_models import BuildingData, BuildingEffects, BuildingLevel, ResourceCosts
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -60,7 +61,6 @@ class ResourcesScraper:
 
         service = FirefoxService(driver_path)
         driver = None
-        all_buildings_data = []
 
         try:
             driver = webdriver.Firefox(service=service, options=firefox_options)
@@ -320,9 +320,15 @@ class ResourcesScraper:
         # Look for effect data in the level data
         for key, value in level_data.items():
             if key in ["storage_capacity", "production_bonus", "training_time_reduction",
-                       "build_time_reduction", "population_bonus", "offensive_bonus",
+                       "build_time_reduction", "population_bonus","production_type", "offensive_bonus",
                        "defensive_bonus", "merchant_capacity", "culture_points_bonus"] and value is not None:
-                effects_found[key] = value
+                if key == "production_type":
+                    #production type must be paired with production bonus
+                    if "production_bonus" in effects_found:
+                        effects_found[key] = value
+                else:
+                    effects_found[key] = value
+
 
         if not effects_found:
             return None
@@ -367,12 +373,8 @@ class ResourcesScraper:
 
         # Handle production bonuses
         production_bonuses = {}
-        if "production_bonus" in effects_found:
-            # For now, assume it's a general production bonus
-            # TODO: Determine specific resource type from building context
-            production_bonuses["general"] = float(effects_found["production_bonus"])
-
-        if production_bonuses:
+        if "production_type" in effects_found:
+            production_bonuses[effects_found["production_type"]] = float(effects_found["production_bonus"])
             effect_args["production_bonus"] = production_bonuses
 
         # Handle any remaining effects in the other_effects field
@@ -692,6 +694,7 @@ def _parse_level_row(row, header_columns: dict[str, str]) -> Optional[dict[str, 
 
     for cell in cells_with_style:
         style = cell.get("style", "")
+        #get
         grid_area_match = re.search(r'grid-area:\s*([^;]+)', style)
 
         if grid_area_match:
@@ -717,12 +720,15 @@ def _parse_level_row(row, header_columns: dict[str, str]) -> Optional[dict[str, 
                 elif data_type in ["storage_capacity", "production_bonus", "training_time_reduction",
                                    "build_time_reduction", "population_bonus", "offensive_bonus",
                                    "defensive_bonus", "merchant_capacity", "culture_points_bonus"]:
+
                     # Parse effect values using specialized function
-                    parsed_value = parse_effect_value(cell_text, data_type)
-                    if parsed_value is not None:
-                        row_data[data_type] = parsed_value
+                    production_value, production_type = parse_effect_value(cell_text, data_type)
+                    if production_value is not None:
+                        row_data[data_type] = production_value
                     else:
-                        row_data[data_type] = cell_text  # Fallback to raw text
+                        row_data[data_type] = cell_text  # Fallback to raw tex
+
+                    row_data['production_type'] = production_type
                 elif data_type:
                     # Store as string for known types
                     row_data[data_type] = cell_text
@@ -773,11 +779,12 @@ def _extract_building_id(soup: BeautifulSoup) -> str:
     """
     # Try to find building image with class like "building_g15"
     building_imgs = soup.find_all("i")
-    for building_img in building_imgs:
-        classes = building_img.get("class", [])
-        for class_name in classes:
-            if class_name.startswith("building_g"):
-                return class_name.replace("building_", "")
+    main_img = building_imgs[1] #The first item is the main building, the second is the level icon
+
+    class_ = main_img.get("class", [])
+    for class_name in class_:
+        if class_name.startswith("building_g"):
+            return class_name.replace("building_", "")
 
     return "unknown"
 
@@ -812,7 +819,11 @@ def main():
                            f"{first_level.resource_cost.iron}i, {first_level.resource_cost.crop}cr")
 
         # Optionally export to CSV
-        export_to_csv(buildings_data, "src/travian_strategy/data/building_resource_costs.csv")
+        export_to_csv(buildings_data, Directories.DATA_FOLDER / "building_resource_costs.csv")
+        #export buildings data as pickle
+        import pickle
+
+        logger.info("Exported building data to CSV and pickle formats")
 
     except Exception:
         logger.exception("Error in main execution")
@@ -820,6 +831,16 @@ def main():
     else:
         return buildings_data
 
+def export_to_pickle(buildings_data: list[BuildingData], filename: str):
+    """
+    Export building data to a pickle file.
+    Args:
+        buildings_data: List of BuildingData objects
+        filename: Output pickle filename
+    """
+
+    with open(Directories.DATA_FOLDER / "building_resource_costs.pkl", "wb") as f:
+        pickle.dump(buildings_data, f)
 
 def export_to_csv(buildings_data: list[BuildingData], filename: str):
     """
@@ -830,7 +851,7 @@ def export_to_csv(buildings_data: list[BuildingData], filename: str):
     - Resource costs: wood, clay, iron, crop, total_resources
     - Build requirements: build_time, population, culture_points
     - Effect indicators: has_effects (Yes/No), effect_type (categories), effect_description (human-readable)
-    - Production bonuses: production_bonus_type, production_bonus_value
+    - Production bonuses: production_bonus_type, production_value
     - Specific effects: storage_capacity, population_bonus, training_time_reduction_pct,
                       build_time_reduction_pct, build_cost_reduction_pct, offensive_bonus_pct,
                       defensive_bonus_pct, merchant_capacity, culture_points_bonus_pct
@@ -865,7 +886,7 @@ def export_to_csv(buildings_data: list[BuildingData], filename: str):
             'build_time', 'population', 'culture_points',
             # Building Effects columns
             'has_effects', 'effect_type', 'effect_description',
-            'production_bonus_type', 'production_bonus_value',
+            'production_bonus_type', 'production_value',
             'storage_capacity', 'population_bonus',
             'training_time_reduction_pct', 'build_time_reduction_pct', 'build_cost_reduction_pct',
             'offensive_bonus_pct', 'defensive_bonus_pct',
@@ -918,7 +939,7 @@ def _get_effects_summary_for_csv(effects: Optional['BuildingEffects']) -> dict[s
             'effect_type': '',
             'effect_description': '',
             'production_bonus_type': '',
-            'production_bonus_value': '',
+            'production_value': '',
             'storage_capacity': '',
             'population_bonus': '',
             'training_time_reduction_pct': '',
@@ -983,19 +1004,19 @@ def _get_effects_summary_for_csv(effects: Optional['BuildingEffects']) -> dict[s
 
     # Format production bonus for CSV
     prod_bonus_type = ""
-    prod_bonus_value = ""
+    prod_value = ""
     if effects.production_bonus:
         resources = list(effects.production_bonus.keys())
         values = list(effects.production_bonus.values())
         prod_bonus_type = ", ".join(resources)
-        prod_bonus_value = ", ".join([f"{v}%" for v in values])
+        prod_value = ", ".join([f"{v}%" for v in values]) if prod_bonus_type == 'percentage' else ", ".join([str(v) for v in values])
 
     return {
         'has_effects': 'Yes',
         'effect_type': "; ".join(effect_types),
         'effect_description': "; ".join(effect_descriptions),
         'production_bonus_type': prod_bonus_type,
-        'production_bonus_value': prod_bonus_value,
+        'production_value': prod_value,
         'storage_capacity': effects.storage_capacity if effects.storage_capacity is not None else '',
         'population_bonus': effects.population_bonus if effects.population_bonus is not None else '',
         'training_time_reduction_pct': f"{effects.training_time_reduction}%" if effects.training_time_reduction is not None else '',
