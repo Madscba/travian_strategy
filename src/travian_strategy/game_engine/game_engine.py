@@ -79,9 +79,3 @@ class GameEngine:
     def main(self):
         self.construct_buildings_from_data()
 
-if __name__ == "__main__":
-    village = create_village_from_type("4-4-4-6")
-    engine = GameEngine(village=village, server_speed=1)
-    engine.main()
-    print(engine.get_current_state())
-    print(engine.get_valid_actions())

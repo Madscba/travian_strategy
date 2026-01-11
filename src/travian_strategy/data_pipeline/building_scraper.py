@@ -818,10 +818,12 @@ def main():
                 logger.info(f"  Level 1 costs: {first_level.resource_cost.wood}w, {first_level.resource_cost.clay}c, "
                            f"{first_level.resource_cost.iron}i, {first_level.resource_cost.crop}cr")
 
+        #export buildings data as pickle
+        with open(Directories.DATA_FOLDER / "building_resource_costs.pkl", 'wb') as f: 
+            pickle.dump(buildings_data, f) 
+
         # Optionally export to CSV
         export_to_csv(buildings_data, Directories.DATA_FOLDER / "building_resource_costs.csv")
-        #export buildings data as pickle
-        import pickle
 
         logger.info("Exported building data to CSV and pickle formats")
 

@@ -28,10 +28,6 @@ dependencies = [
     "selenium>=4.35.0",
 ]
 
-[project.urls]
-Homepage = "https://fpgmaas.github.io/travian-strategy/"
-Repository = "https://github.com/fpgmaas/travian-strategy"
-Documentation = "https://fpgmaas.github.io/travian-strategy/"
 
 [dependency-groups]
 dev = [

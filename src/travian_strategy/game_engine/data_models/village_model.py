@@ -197,7 +197,7 @@ class Village(BaseModel):
                 actions.append(BuildBuildingAction(
                     type='build',
                     position=pos,
-                    building_id='g1',
+                    building_id='Empty',
                     target_level=1)
                 )
 
