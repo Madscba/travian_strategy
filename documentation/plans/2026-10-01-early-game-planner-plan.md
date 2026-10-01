@@ -4,7 +4,7 @@ This plan implements the PRD in `documentation/prds/2026-10-01-early-game-planne
 
 ## How to run this plan
 
-- Run the stages in order. A stage starts only after the gate of the previous stage passes.
+- Run the stages in order. A stage starts only after the player accepts the previous stage.
 - Run each step with the `baby-steps` skill: propose the step, agree, implement only that step, review, accept.
 - Place backend code with the `layered-architecture` skill. Update `CONTEXT.md` with the `domain-modeling` skill when a term changes.
 
@@ -17,6 +17,14 @@ This plan implements the PRD in `documentation/prds/2026-10-01-early-game-planne
    - The player reviews and accepts the list.
 2. **Implementation.** The steps of the stage, in baby steps. Each step has its own check.
 3. **Gate.** The conceptual tests become code and run. Every test passes, and the gate check of the stage passes. When a test fails, the player decides whether the code or the expectation is wrong.
+4. **Player test.** The player tests the code for correctness on the stage branch: the tests, the checks, and the app in the browser where the stage has a user interface. The stage is done when the player accepts it.
+
+### Branches and commits
+
+1. Each stage starts on a new branch from the latest `main`. The branch name is `stage-<n>-<short-name>`, for example `stage-1-codebase-setup`.
+2. The changes of a stage stay uncommitted in the working tree until the player accepts the stage.
+3. After the player accepts the stage, commit the stage on the stage branch.
+4. Merge the stage branch into `main`. The next stage starts from that `main`.
 
 ## Stage 0: Clean slate
 
@@ -24,7 +32,7 @@ Goal: the repository holds only the planning documents.
 
 | Step | Change | Check |
 |---|---|---|
-| 0.1 | Tag the current `main` as `legacy`. Push the tag. | `git tag` lists `legacy`. The remote has the tag. |
+| 0.1 | Tag commit `69d8956` (the last commit with the old code) as `legacy`. Push the tag. | `git tag` lists `legacy`. The remote has the tag. |
 | 0.2 | Delete every file except `CONTEXT.md`, `documentation/`, and `.git`. | `git ls-files` lists only `CONTEXT.md` and `documentation/`. |
 
 Gate: the player reviews the tree. Stage 0 has no conceptual tests.
