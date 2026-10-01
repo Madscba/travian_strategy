@@ -1,1 +1,0 @@
-::: travian_strategy.foo
